@@ -19,7 +19,9 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 2. Run `PiShock/native/build.sh` on Linux or macOS. On Windows, run this from the `PiShock/native` folder instead: `zig cc -target x86_64-windows-gnu -shared -O2 -s -o ../bin/ps_native.dll ps_native.c -lwinhttp`
 3. The new `ps_native.dll` replaces the one in `PiShock/bin/`.
 
-**Options:**
+<details>
+<summary><b>Mod Settings / Commands</b></summary>
+
 **General**
 - Chat Feedback
 - Disable Beeps in Randomization
@@ -72,6 +74,7 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 - `/pishock_apikey <apikey>` - Sets your PiShock API key.
 - `/pishock_shocker <shocker_names>` - Sets specific PiShock shockers to target (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
 - `/pishock_info` - Shows your currently configured PiShock account information (with a masked API key for safety).
+</details>
 
 Commissioned by Angels
 

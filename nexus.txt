@@ -13,7 +13,8 @@ Your API key must have been generated after 15 October 2024. If the mod reports 
 [b]Building the DLL yourself (optional):[/b]
 Players do not need to do this. If you would rather not trust the included DLL, the source is in the mod's native folder and the build steps are in the README on GitHub.
 
-[b]Options:[/b]
+[b]Mod Settings / Commands:[/b]
+[spoiler]
 [b]General[/b]
 - Chat Feedback
 - Disable Beeps in Randomization
@@ -66,6 +67,7 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 - /pishock_apikey <apikey> - Sets your PiShock API key.
 - /pishock_shocker <shocker_names> - Sets specific PiShock shockers to target (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
 - /pishock_info - Shows your currently configured PiShock account information (with a masked API key for safety).
+[/spoiler]
 
 [b]Credits:[/b]
 The FFI and native DLL approach is based on [url=https://www.nexusmods.com/warhammer40kdarktide/mods/1003]Emperor's Touch[/url] by [url=https://www.nexusmods.com/profile/augentism?gameId=4943]augentism[/url].
