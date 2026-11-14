@@ -111,11 +111,11 @@ for _, prefix in ipairs(editor_prefixes) do
     localizations["editor_" .. prefix .. "_duration"] = { en = "Duration (Seconds)" }
     localizations["editor_" .. prefix .. "_intensity"] = { en = "Intensity" }
     localizations["editor_" .. prefix .. "_enable_random_duration"] = { en = "Randomize Duration" }
-    localizations["editor_" .. prefix .. "_duration_min"] = { en = "--> Random Min (Seconds)" }
-    localizations["editor_" .. prefix .. "_duration_max"] = { en = "--> Random Max (Seconds)" }
+    localizations["editor_" .. prefix .. "_duration_min"] = { en = "Random Min (Seconds)" }
+    localizations["editor_" .. prefix .. "_duration_max"] = { en = "Random Max (Seconds)" }
     localizations["editor_" .. prefix .. "_enable_random_intensity"] = { en = "Randomize Intensity" }
-    localizations["editor_" .. prefix .. "_intensity_min"] = { en = "--> Random Min" }
-    localizations["editor_" .. prefix .. "_intensity_max"] = { en = "--> Random Max" }
+    localizations["editor_" .. prefix .. "_intensity_min"] = { en = "Random Min" }
+    localizations["editor_" .. prefix .. "_intensity_max"] = { en = "Random Max" }
 end
 
 for _, hook in ipairs(hooks) do

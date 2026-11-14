@@ -153,35 +153,39 @@ for _, category in ipairs(hook_categories) do
                 setting_id = "editor_" .. category.prefix .. "_enable_random_duration",
                 type = "checkbox",
                 default_value = false,
-            },
-            {
-                setting_id = "editor_" .. category.prefix .. "_duration_min",
-                type = "numeric",
-                default_value = 1,
-                range = { 1, 15 },
-            },
-            {
-                setting_id = "editor_" .. category.prefix .. "_duration_max",
-                type = "numeric",
-                default_value = 1,
-                range = { 1, 15 },
+                sub_widgets = {
+                    {
+                        setting_id = "editor_" .. category.prefix .. "_duration_min",
+                        type = "numeric",
+                        default_value = 1,
+                        range = { 1, 15 },
+                    },
+                    {
+                        setting_id = "editor_" .. category.prefix .. "_duration_max",
+                        type = "numeric",
+                        default_value = 1,
+                        range = { 1, 15 },
+                    },
+                },
             },
             {
                 setting_id = "editor_" .. category.prefix .. "_enable_random_intensity",
                 type = "checkbox",
                 default_value = false,
-            },
-            {
-                setting_id = "editor_" .. category.prefix .. "_intensity_min",
-                type = "numeric",
-                default_value = 10,
-                range = { 1, 100 },
-            },
-            {
-                setting_id = "editor_" .. category.prefix .. "_intensity_max",
-                type = "numeric",
-                default_value = 10,
-                range = { 1, 100 },
+                sub_widgets = {
+                    {
+                        setting_id = "editor_" .. category.prefix .. "_intensity_min",
+                        type = "numeric",
+                        default_value = 10,
+                        range = { 1, 100 },
+                    },
+                    {
+                        setting_id = "editor_" .. category.prefix .. "_intensity_max",
+                        type = "numeric",
+                        default_value = 10,
+                        range = { 1, 100 },
+                    },
+                },
             }
         }
     }
