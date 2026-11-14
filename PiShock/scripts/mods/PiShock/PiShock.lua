@@ -150,6 +150,12 @@ local last_request_time = 0
 
 local send_pishock_command
 
+local native = mod:io_dofile("PiShock/scripts/mods/PiShock/PiShock_native")
+
+local function configure_native()
+    native.configure(mod:get("pishock_username") or "", mod:get("pishock_apikey") or "")
+end
+
 mod.on_setting_changed = function(setting_id)
     local target_match = setting_id:match("^editor_(%w+)_target$")
     if target_match then
@@ -183,6 +189,9 @@ mod.on_all_mods_loaded = function()
     mod.on_setting_changed("editor_vitals_target")
     mod.on_setting_changed("editor_mechanics_target")
     mod.on_setting_changed("editor_enemies_target")
+    if mod:is_enabled() then
+        configure_native()
+    end
 end
 
 mod.on_settings_reset = function()
@@ -213,12 +222,18 @@ local is_currently_continuous_disabled = false
 local has_printed_continuous_start = false
 
 local last_health_frac  = nil
+local last_damage_frac  = 0
 local last_corr_frac    = nil
 local last_stamina_frac = nil
 local last_toughness_frac = nil
 local was_suppressed    = false
 
+mod.on_enabled = function()
+    configure_native()
+end
+
 mod.on_disabled = function()
+    native.disconnect()
     table.clear(pishock_command_queue)
     last_health_frac = nil
     last_corr_frac = nil
@@ -231,6 +246,8 @@ function mod.update(dt)
     if not mod:is_enabled() then
         return
     end
+
+    native.update()
 
     local tm = mod:clock()
     
@@ -278,6 +295,7 @@ function mod.update(dt)
             if last_health_frac then
                 if health_frac < last_health_frac - 0.001 then
                     if not is_disabled then
+                        last_damage_frac = last_health_frac - health_frac
                         send_pishock_command("on_damage_taken")
                     end
                 end
@@ -380,6 +398,13 @@ function mod.update(dt)
         intensity = (int_max > int_min) and math.random(int_min, int_max) or int_min
     end
 
+    if hook_id == "on_damage_taken" and mod:get("scale_intensity_with_damage") then
+        local full_frac = (tonumber(mod:get("scale_full_damage_percent")) or 50) / 100
+        local max_intensity = tonumber(mod:get("scale_max_intensity")) or 10
+        local min_intensity = math.min(tonumber(mod:get("scale_min_intensity")) or 1, max_intensity)
+        intensity = math.ceil(min_intensity + (max_intensity - min_intensity) * math.min(1, last_damage_frac / full_frac))
+    end
+
     local continuous_disablers = {
         on_pounced = true,
         on_netted = true,
@@ -401,22 +426,9 @@ function mod.update(dt)
         return
     end
 
-    local payload = {
-        op = op,
-        duration = duration,
-        intensity = intensity,
-        username = username,
-        apikey = apikey,
-        shocker_names = mod:get("pishock_shocker") or ""
-    }
-    
-    Managers.backend:url_request("http://127.0.0.1:20010/shock", {
-        method = "POST",
-        body = payload
-    }):next(function(response)
-    end):catch(function(error)
-        mod:echo("Warning: Failed to communicate with PiShock. Did you start the server.py?")
-    end)
+    if not native.send(username, apikey, op, intensity, duration, mod:get("pishock_shocker") or "") then
+        return
+    end
 
     last_request_time = tm
 
@@ -590,6 +602,7 @@ mod:command("pishock_username", "Set PiShock Username", function(...)
         local username = table.concat(args, " ")
         mod:set("pishock_username", username)
         mod:echo("PiShock Username set to: " .. username)
+        configure_native()
     else
         mod:echo("Usage: /pishock_username <username>")
     end
@@ -601,6 +614,7 @@ mod:command("pishock_apikey", "Set PiShock API Key", function(...)
         local apikey = table.concat(args, " ")
         mod:set("pishock_apikey", apikey)
         mod:echo("PiShock API Key set to: " .. apikey)
+        configure_native()
     else
         mod:echo("Usage: /pishock_apikey <apikey>")
     end

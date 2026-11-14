@@ -1,0 +1,71 @@
+Connects Darktide to a PiShock device to trigger shocks, vibrations, or beeps on specific game events. Each trigger has its own operation, intensity and duration, with optional randomization, chat feedback and a cooldown.
+
+[b]No companion server needed.[/b] From version 3.0 the mod talks to PiShock directly through a small DLL included in the mod folder (bin/ps_native.dll). You no longer need Python, server.exe or start_server.bat. The DLL's source is included in native/ps_native.c.
+
+[b]Setup:[/b]
+1. Install the mod like any other Darktide mod.
+2. In game chat, run /pishock_username <username> and /pishock_apikey <apikey>.
+3. Optional: run /pishock_shocker <names> to target specific shockers. Without it, all active shockers are triggered.
+4. Pick what each trigger does in the mod options.
+
+Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
+
+[b]Building the DLL yourself (optional):[/b]
+Players do not need to do this. If you would rather not trust the included DLL, the source is in the mod's native folder and the build steps are in the README on GitHub.
+
+[b]Options:[/b]
+[b]General[/b]
+- Chat Feedback
+- Disable Beeps in Randomization
+- Continuous Pulse While Disabled
+- Command Cooldown (Seconds)
+- Health Threshold Percent
+- Scale Intensity With Hit Size
+- Minimum Intensity
+- Maximum Intensity
+- Hit Size For Maximum (% of Max Health)
+
+[b]Vitals[/b]
+- Health Damage Taken
+- Grimoire Corruption Tick
+- Corruption Taken
+- Health Drops Below Percent
+- Toughness Broken
+- Stamina Depleted
+- Guard Broken
+- Tired Dodge
+- High Suppression
+- Knocked Down
+- Player Death
+
+[b]Mechanics[/b]
+- Minigame Failure
+- Plasma / Psyker Explosion
+- For the Emperor
+- Friendly Fire (Taken)
+- Friendly Fire (Dealt)
+
+[b]Enemies[/b]
+- Boss Spawned
+- Pounced by Hound
+- Trapped by Trapper
+- Grabbed by Mutant
+- Eaten by Beast of Nurgle
+- Grabbed by Chaos Spawn
+
+[b]Per-trigger settings[/b] (Vitals, Mechanics and Enemies tabs)
+- Select Trigger to Edit
+- Operation Type (Disabled, Shock, Vibrate, Beep, Random)
+- Duration (Seconds)
+- Intensity
+- Randomize Duration (min and max)
+- Randomize Intensity (min and max)
+
+[b]Commands:[/b]
+- /pishock_username <username> - Sets your PiShock account username.
+- /pishock_apikey <apikey> - Sets your PiShock API key.
+- /pishock_shocker <shocker_names> - Sets specific PiShock shockers to target (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
+- /pishock_info - Shows your currently configured PiShock account information (with a masked API key for safety).
+
+[b]Links:[/b]
+[url=https://github.com/MaddyMarv/Emperor-s-Punishment-Pishock-for-Darktide-]Source Code[/url] | [url=https://www.nexusmods.com/profile/indicabunny]Nexus Mods Profile[/url] | [url=https://ko-fi.com/indicabunny]Support Me on Ko-fi[/url]

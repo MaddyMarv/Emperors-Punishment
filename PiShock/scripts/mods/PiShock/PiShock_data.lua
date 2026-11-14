@@ -76,6 +76,31 @@ local widgets = {
                 default_value = 30,
                 range = { 1, 99 },
             },
+            {
+                setting_id = "scale_intensity_with_damage",
+                type = "checkbox",
+                default_value = false,
+                sub_widgets = {
+                    {
+                        setting_id = "scale_min_intensity",
+                        type = "numeric",
+                        default_value = 1,
+                        range = { 1, 100 },
+                    },
+                    {
+                        setting_id = "scale_max_intensity",
+                        type = "numeric",
+                        default_value = 10,
+                        range = { 1, 100 },
+                    },
+                    {
+                        setting_id = "scale_full_damage_percent",
+                        type = "numeric",
+                        default_value = 50,
+                        range = { 1, 100 },
+                    },
+                },
+            },
         }
     }
 }

@@ -24,7 +24,7 @@ local localizations = {
         en = "Random",
     },
     trigger_on_health_threshold_value = {
-        en = "Health Threshold Percent (1-99)",
+        en = "Health Threshold Percent",
     },
     general_group = {
         en = "General Settings",
@@ -40,6 +40,30 @@ local localizations = {
     },
     command_cooldown = {
         en = "Command Cooldown (Seconds)",
+    },
+    scale_intensity_with_damage = {
+        en = "Scale Intensity With Hit Size",
+    },
+    scale_intensity_with_damage_description = {
+        en = "Bigger hits send stronger shocks, between the minimum and maximum below.",
+    },
+    scale_full_damage_percent = {
+        en = "Hit Size For Maximum (%% of Max Health)",
+    },
+    scale_full_damage_percent_description = {
+        en = "A hit this big or bigger sends the maximum.",
+    },
+    scale_min_intensity = {
+        en = "Minimum Intensity",
+    },
+    scale_min_intensity_description = {
+        en = "Weakest shock, for the smallest hits.",
+    },
+    scale_max_intensity = {
+        en = "Maximum Intensity",
+    },
+    scale_max_intensity_description = {
+        en = "Strongest shock, for the biggest hits.",
     },
 }
 
@@ -85,13 +109,13 @@ for _, prefix in ipairs(editor_prefixes) do
     localizations["editor_" .. prefix .. "_target"] = { en = "Select Trigger to Edit" }
     localizations["editor_" .. prefix .. "_op"] = { en = "Operation Type" }
     localizations["editor_" .. prefix .. "_duration"] = { en = "Duration (Seconds)" }
-    localizations["editor_" .. prefix .. "_intensity"] = { en = "Intensity (1-100)" }
+    localizations["editor_" .. prefix .. "_intensity"] = { en = "Intensity" }
     localizations["editor_" .. prefix .. "_enable_random_duration"] = { en = "Randomize Duration" }
-    localizations["editor_" .. prefix .. "_duration_min"] = { en = "└─ Random Min (Seconds)" }
-    localizations["editor_" .. prefix .. "_duration_max"] = { en = "└─ Random Max (Seconds)" }
+    localizations["editor_" .. prefix .. "_duration_min"] = { en = "--> Random Min (Seconds)" }
+    localizations["editor_" .. prefix .. "_duration_max"] = { en = "--> Random Max (Seconds)" }
     localizations["editor_" .. prefix .. "_enable_random_intensity"] = { en = "Randomize Intensity" }
-    localizations["editor_" .. prefix .. "_intensity_min"] = { en = "└─ Random Min (1-100)" }
-    localizations["editor_" .. prefix .. "_intensity_max"] = { en = "└─ Random Max (1-100)" }
+    localizations["editor_" .. prefix .. "_intensity_min"] = { en = "--> Random Min" }
+    localizations["editor_" .. prefix .. "_intensity_max"] = { en = "--> Random Max" }
 end
 
 for _, hook in ipairs(hooks) do
