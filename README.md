@@ -1,4 +1,4 @@
-### [Emperor's Punishment (PiShock for Darktide)](https://www.nexusmods.com/warhammer40kdarktide/mods/1043)
+### [Emperor's Punishment](https://www.nexusmods.com/warhammer40kdarktide/mods/1043)
 <img width="1407" height="663" alt="image" src="https://github.com/user-attachments/assets/a48964e6-14f6-4410-bfc6-e84d2aa16327" />
 
 Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations, or beeps on specific game events. Each trigger has its own operation, intensity and duration, with optional randomization, chat feedback and a cooldown.
