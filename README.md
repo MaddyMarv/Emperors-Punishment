@@ -1,17 +1,21 @@
 ### [Emperor's Punishment (PiShock for Darktide)](https://www.nexusmods.com/warhammer40kdarktide/mods/1043)
 <img width="1407" height="663" alt="image" src="https://github.com/user-attachments/assets/a48964e6-14f6-4410-bfc6-e84d2aa16327" />
 
-Connects Darktide to a PiShock device to trigger shocks, vibrations, or beeps on specific game events. Each trigger has its own operation, intensity and duration, with optional randomization, chat feedback and a cooldown.
+Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations, or beeps on specific game events. Each trigger has its own operation, intensity and duration, with optional randomization, chat feedback and a cooldown.
 
-**No companion server needed.** From version 3.0 the mod talks to PiShock directly through a small DLL included in the mod folder (`bin/ps_native.dll`). You no longer need Python, `server.exe` or `start_server.bat`. The DLL's source is included in `native/ps_native.c`.
+**No companion server needed.** Since version 3.0 the mod talks to the service directly (PiShock, and OpenShock from 3.1) through a small DLL included in the mod folder (`bin/ps_native.dll`). You no longer need Python, `server.exe` or `start_server.bat`. The DLL's source is included in `native/ps_native.c`.
 
 **Setup:**
 1. Install the mod like any other Darktide mod.
-2. In game chat, run `/pishock_username <username>` and `/pishock_apikey <apikey>`.
-3. Optional: run `/pishock_shocker <names>` to target specific shockers. Without it, all active shockers are triggered.
-4. Pick what each trigger does in the mod options.
+2. In the mod options, set **Service** to PiShock or OpenShock. It is Off by default, and nothing is sent while it is Off.
+3. Enter your account details in game chat (see below).
+4. Optional: run `/ps_target <names>` to target specific shockers. Without it, all active shockers are triggered.
+5. Run `/ps_test` to check it works. It sends a short vibration.
+6. Pick what each trigger does in the mod options.
 
-Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
+**PiShock:** run `/ps_pishock_username <username>` and `/ps_pishock_apikey <apikey>`. Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
+
+**OpenShock:** run `/ps_openshock_token <token>`. Create the token on [openshock.app](https://openshock.app) under API Tokens, with the `shockers.use` permission. The mod uses your own shockers and any shared with you, within the limits the owner set. Self-hosting? Run `/ps_openshock_server <address>` with your API address (for example `https://api.example.com`). Run it with nothing after it to go back to the official server.
 
 **Building the DLL yourself (optional):**
 Players do not need to do this. If you would rather not trust the included DLL, you can build it from the source in `PiShock/native/`:
@@ -23,6 +27,7 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 <summary><b>Mod Settings / Commands</b></summary>
 
 **General**
+- Service (Off, PiShock, OpenShock)
 - Chat Feedback
 - Disable Beeps in Randomization
 - Continuous Pulse While Disabled
@@ -70,10 +75,15 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 - Randomize Intensity (min and max)
 
 **Commands:**
-- `/pishock_username <username>` - Sets your PiShock account username.
-- `/pishock_apikey <apikey>` - Sets your PiShock API key.
-- `/pishock_shocker <shocker_names>` - Sets specific PiShock shockers to target (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
-- `/pishock_info` - Shows your currently configured PiShock account information (with a masked API key for safety).
+- `/ps_pishock_username <username>` - Sets your PiShock account username.
+- `/ps_pishock_apikey <apikey>` - Sets your PiShock API key.
+- `/ps_openshock_token <token>` - Sets your OpenShock API token.
+- `/ps_openshock_server <address>` - Sets a self-hosted OpenShock API address. Leave blank to use the official server.
+- `/ps_target <shocker_names>` - Sets specific shockers to target (works for both services) (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
+- `/ps_test [shock|vibrate|beep] [intensity] [seconds]` - Sends a test to the active service. Defaults to vibrate at intensity 10 for 1 second.
+- `/ps_refresh` - Re-reads your shocker list. Use it after adding, pausing or sharing a shocker while the game is running.
+- `/ps_info` - Shows the active service and your configured account information (with masked keys for safety).
+- `/ps_info clear` - Clears your saved username, API key, OpenShock token, server address and targeted shockers. Trigger settings are kept.
 </details>
 
 Commissioned by Angels

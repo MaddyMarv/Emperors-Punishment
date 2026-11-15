@@ -6,7 +6,7 @@ local native = {}
 local DLL_PATH = "../mods/PiShock/bin/ps_native.dll"
 local RETRY_DELAY = 10
 local WS_CONNECTED = 2
-local KEY_HINT = "Keys made before 15 October 2024 no longer work. Generate a new one if yours is older."
+local KEY_HINT = mod:localize("msg_key_hint")
 local ERROR_POLL_INTERVAL = 1
 local ERROR_REPEAT_DELAY = 30
 local HTTP_IDLE = 0
@@ -30,6 +30,14 @@ if not pcall(ffi.typeof, "PiShock_CDEF") then
     ]])
 end
 
+if not pcall(ffi.typeof, "PiShock_CDEF_POST") then
+    ffi.cdef([[
+        typedef struct { int unused; } PiShock_CDEF_POST;
+
+        int  PS_HttpPost(const char* url, const char* headers, const char* body);
+    ]])
+end
+
 local buffer_size = 65536
 local buffer = ffi.new("char[?]", buffer_size)
 local status_out = ffi.new("int[1]")
@@ -48,7 +56,7 @@ local function load_dll()
     if not ok then
         if not state.load_error_shown then
             state.load_error_shown = true
-            mod:echo("Could not load ps_native.dll (" .. tostring(dll) .. ")")
+            mod:echo(mod:localize("msg_dll_load_failed", tostring(dll)))
         end
         return nil
     end
@@ -70,7 +78,7 @@ end
 
 local function describe(status)
     if status < 0 then
-        return "network error " .. tostring(-status)
+        return mod:localize("msg_network_error", tostring(-status))
     end
     return "HTTP " .. tostring(status)
 end
@@ -113,8 +121,8 @@ local function publish(dll, command)
                     Body = {
                         id = shocker.id,
                         m = OP_MODES[command.op] or "v",
-                        i = command.intensity,
-                        d = command.duration * 1000,
+                        i = math.clamp(math.floor(command.intensity + 0.5), 1, 100),
+                        d = math.clamp(math.floor(command.duration + 0.5), 1, 15) * 1000,
                         r = true,
                         l = {
                             u = state.user_id,
@@ -131,9 +139,9 @@ local function publish(dll, command)
 
     if #commands == 0 then
         if #clients == 0 then
-            mod:echo("No active shockers found on this PiShock account. They may be paused or not shared with it.")
+            mod:echo(mod:localize("msg_pishock_no_shockers"))
         else
-            mod:echo("None of your active shockers match /pishock_shocker (" .. command.shocker_names .. ").")
+            mod:echo(mod:localize("msg_no_target_match", command.shocker_names))
         end
         return false
     end
@@ -144,17 +152,18 @@ end
 local function on_account(dll, status, body)
     if status == 401 then
         state.key_rejected = true
-        fail("The API key was rejected. Check /pishock_apikey.")
+        fail(mod:localize("msg_pishock_key_rejected"))
+        mod:echo(mod:localize("msg_check_pishock_apikey"))
         mod:echo(KEY_HINT)
         return
     end
     local ok, data = pcall(cjson.decode, body)
     local user_id = ok and type(data) == "table" and (data.UserId or data.UserID or data.userId or data.id)
     if status ~= 200 then
-        return fail("Could not read your account (" .. describe(status) .. ").")
+        return fail(mod:localize("msg_pishock_account_failed", describe(status)))
     end
     if not user_id then
-        return fail("PiShock returned an account reply without a user ID.")
+        return fail(mod:localize("msg_pishock_no_user_id"))
     end
 
     state.user_id = user_id
@@ -166,10 +175,10 @@ end
 local function on_devices(dll, status, body)
     local ok, devices = pcall(cjson.decode, body)
     if status ~= 200 then
-        return fail("Could not read your devices (" .. describe(status) .. ").")
+        return fail(mod:localize("msg_pishock_devices_failed", describe(status)))
     end
     if not ok or type(devices) ~= "table" then
-        return fail("PiShock returned a device list that could not be read.")
+        return fail(mod:localize("msg_pishock_devices_unreadable"))
     end
 
     local clients = {}
@@ -193,7 +202,33 @@ local function on_devices(dll, status, body)
 
     state.clients = clients
     state.step = nil
+
+    if state.announce then
+        state.announce = false
+        local names = {}
+        for i = 1, #clients do
+            local shockers = clients[i].shockers
+            for j = 1, #shockers do
+                names[#names + 1] = shockers[j].name
+            end
+        end
+        mod:echo(#names > 0 and mod:localize("msg_found_shockers", tostring(#names), "PiShock", table.concat(names, ", ")) or mod:localize("msg_found_none", "PiShock"))
+    end
 end
+
+function native.refresh()
+    if not state.key then
+        return false
+    end
+    state.clients = nil
+    state.retry_at = nil
+    state.announce = true
+    state.step = "restart"
+    return true
+end
+
+native.load = load_dll
+native.read_result = read_result
 
 function native.configure(username, apikey)
     if username == "" or apikey == "" then
@@ -236,18 +271,18 @@ function native.disconnect()
     end
 end
 
-function native.send(username, apikey, op, intensity, duration, shocker_names)
+function native.send(username, apikey, op, intensity, duration, shocker_names, is_test)
     if not native.configure(username, apikey) then
         return false
     end
 
     if not state.clients or state.dll.PS_Status() ~= WS_CONNECTED then
         local t = mod:clock()
-        if state.step and (t >= last_skip_t + ERROR_REPEAT_DELAY or t < last_skip_t) then
+        if state.step and not is_test and (t >= last_skip_t + ERROR_REPEAT_DELAY or t < last_skip_t) then
             last_skip_t = t
-            mod:echo("Still connecting to PiShock. This trigger was skipped.")
+            mod:echo(mod:localize("msg_still_connecting", "PiShock"))
         end
-        return false
+        return false, state.step and "connecting"
     end
 
     return publish(state.dll, {
@@ -300,7 +335,7 @@ function native.update()
             if ok and type(data) == "table" and type(data.Message) == "string" then
                 if data.ErrorCode == "AUTH_ERROR" then
                     hidden = state.key_rejected
-                    message = "PiShock rejected the username or API key. Check /pishock_username and /pishock_apikey."
+                    message = mod:localize("msg_pishock_login_rejected")
                     show_hint = true
                 else
                     message = data.Message
@@ -311,6 +346,7 @@ function native.update()
                 last_error_t = t
                 mod:echo(message)
                 if show_hint then
+                    mod:echo(mod:localize("msg_check_pishock_login"))
                     mod:echo(KEY_HINT)
                 end
             end

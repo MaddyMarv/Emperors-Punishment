@@ -3,7 +3,7 @@ local mod = get_mod("PiShock")
 local hook_categories = {
     {
         prefix = "vitals",
-        tab_name = "Vitals",
+        tab_name = mod:localize("tab_vitals"),
         hooks = {
             { id = "on_damage_taken",     name = "Health Damage Taken" },
             { id = "on_grimoire_damage",  name = "Grimoire Corruption Tick" },
@@ -20,7 +20,7 @@ local hook_categories = {
     },
     {
         prefix = "mechanics",
-        tab_name = "Mechanics",
+        tab_name = mod:localize("tab_mechanics"),
         hooks = {
             { id = "on_minigame_fail",    name = "Minigame Failure" },
             { id = "on_explode",          name = "Plasma / Psyker Explosion" },
@@ -31,7 +31,7 @@ local hook_categories = {
     },
     {
         prefix = "enemies",
-        tab_name = "Enemies",
+        tab_name = mod:localize("tab_enemies"),
         hooks = {
             { id = "on_boss_spawn",       name = "Boss Spawned" },
             { id = "on_pounced",          name = "Pounced by Hound" },
@@ -47,8 +47,18 @@ local widgets = {
     {
         setting_id = "general_group",
         type = "group",
-        tab = "General",
+        tab = mod:localize("tab_general"),
         sub_widgets = {
+            {
+                setting_id = "service",
+                type = "dropdown",
+                default_value = "off",
+                options = {
+                    { text = "service_off", value = "off" },
+                    { text = "service_pishock", value = "pishock" },
+                    { text = "service_openshock", value = "openshock" },
+                },
+            },
             {
                 setting_id = "chat_feedback",
                 type = "checkbox",
@@ -192,7 +202,7 @@ for _, category in ipairs(hook_categories) do
 end
 
 return {
-    name = "PiShock",
+    name = mod:localize("mod_name"),
     description = mod:localize("mod_description"),
     is_togglable = true,
     options = {

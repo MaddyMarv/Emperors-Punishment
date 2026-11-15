@@ -37,7 +37,7 @@ static char last_error[512];
 static int has_error;
 
 static int http_state, http_status, http_len;
-static char *http_body, *http_url, *http_headers;
+static char *http_body, *http_url, *http_headers, *http_post;
 
 static void set_error(const char *fmt, ...) {
     va_list args;
@@ -62,7 +62,7 @@ static void close_handles(HINTERNET a, HINTERNET b, HINTERNET c) {
     if (c) WinHttpCloseHandle(c);
 }
 
-static HINTERNET open_request(const char *url, HINTERNET *session, HINTERNET *connect, int recv_timeout) {
+static HINTERNET open_request(const char *url, const WCHAR *verb, HINTERNET *session, HINTERNET *connect, int recv_timeout) {
     WCHAR *wurl = wide(url);
     WCHAR host[256];
     URL_COMPONENTS uc;
@@ -82,7 +82,7 @@ static HINTERNET open_request(const char *url, HINTERNET *session, HINTERNET *co
             *connect = WinHttpConnect(*session, host, uc.nPort, 0);
         }
         if (*connect) {
-            request = WinHttpOpenRequest(*connect, L"GET", uc.lpszUrlPath, NULL, NULL, NULL,
+            request = WinHttpOpenRequest(*connect, verb, uc.lpszUrlPath, NULL, NULL, NULL,
                                          uc.nScheme == INTERNET_SCHEME_HTTPS ? WINHTTP_FLAG_SECURE : 0);
         }
     }
@@ -95,11 +95,13 @@ static DWORD WINAPI http_thread(LPVOID param) {
     WCHAR *headers = http_headers[0] ? wide(http_headers) : NULL;
     char *body = NULL;
     int len = 0, cap = 0, status = 0;
+    DWORD post_len = http_post ? (DWORD)strlen(http_post) : 0;
 
     (void)param;
-    request = open_request(http_url, &session, &connect, 10000);
+    request = open_request(http_url, http_post ? L"POST" : L"GET", &session, &connect, 10000);
     if (request &&
-        WinHttpSendRequest(request, headers ? headers : WINHTTP_NO_ADDITIONAL_HEADERS, headers ? (DWORD)-1 : 0, NULL, 0, 0, 0) &&
+        WinHttpSendRequest(request, headers ? headers : WINHTTP_NO_ADDITIONAL_HEADERS, headers ? (DWORD)-1 : 0,
+                           http_post ? http_post : WINHTTP_NO_REQUEST_DATA, post_len, post_len, 0) &&
         WinHttpReceiveResponse(request, NULL)) {
         DWORD code = 0, size = sizeof code;
         WinHttpQueryHeaders(request, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, NULL, &code, &size, NULL);
@@ -156,7 +158,7 @@ static DWORD WINAPI ws_thread(LPVOID param) {
         }
 
         ws_status = WS_CONNECTING;
-        request = open_request(url, &session, &connect, 90000);
+        request = open_request(url, L"GET", &session, &connect, 90000);
         free(url);
         if (request &&
             WinHttpSetOption(request, WINHTTP_OPTION_UPGRADE_TO_WEB_SOCKET, NULL, 0) &&
@@ -367,7 +369,7 @@ EXPORT int PS_LastError(char *buffer, int buffer_size) {
     return n;
 }
 
-EXPORT int PS_HttpGet(const char *url, const char *headers) {
+static int http_start(const char *url, const char *headers, const char *post) {
     int ok = 0;
 
     EnterCriticalSection(&lock);
@@ -376,12 +378,22 @@ EXPORT int PS_HttpGet(const char *url, const char *headers) {
         free(http_headers);
         http_url = _strdup(url);
         http_headers = _strdup(headers ? headers : "");
+        free(http_post);
+        http_post = post ? _strdup(post) : NULL;
         http_state = HTTP_PENDING;
         ok = 1;
     }
     LeaveCriticalSection(&lock);
     if (ok) CloseHandle(CreateThread(NULL, 0, http_thread, NULL, 0, NULL));
     return ok;
+}
+
+EXPORT int PS_HttpGet(const char *url, const char *headers) {
+    return http_start(url, headers, NULL);
+}
+
+EXPORT int PS_HttpPost(const char *url, const char *headers, const char *body) {
+    return http_start(url, headers, body ? body : "");
 }
 
 EXPORT int PS_HttpState(void) {

@@ -119,31 +119,6 @@ end
 
 
 
-local TRIGGER_NAMES = {
-    on_damage_taken = "Health Damage Taken",
-    on_grimoire_damage = "Grimoire Corruption Tick",
-    on_corruption_damage = "Corruption Taken",
-    on_health_threshold = "Health Drops Below Percent",
-    on_toughness_broken = "Toughness Broken",
-    on_stamina_depleted = "Stamina Depleted",
-    on_guard_broken = "Guard Broken",
-    on_tired_dodge = "Tired Dodge",
-    on_suppressed = "High Suppression",
-    on_knocked_down = "Knocked Down",
-    on_death = "Player Death",
-    on_friendly_fire_taken = "Friendly Fire (Taken)",
-    on_friendly_fire_dealt = "Friendly Fire (Dealt)",
-    on_minigame_fail = "Minigame Failure",
-    on_explode = "Plasma / Psyker Explosion",
-    on_cheer = "For the Emperor",
-    on_boss_spawn = "Boss Spawned",
-    on_pounced = "Pounced by Hound",
-    on_netted = "Trapped by Trapper",
-    on_grabbed_mutant = "Grabbed by Mutant",
-    on_consumed = "Eaten by Beast of Nurgle",
-    on_grabbed_spawn = "Grabbed by Chaos Spawn",
-}
-
 local pishock_command_queue = {}
 local last_event_time = 0
 local last_request_time = 0
@@ -152,11 +127,33 @@ local send_pishock_command
 
 local native = mod:io_dofile("PiShock/scripts/mods/PiShock/PiShock_native")
 
+mod.native = native
+local openshock = mod:io_dofile("PiShock/scripts/mods/PiShock/PiShock_openshock")
+
+local service = "off"
+
 local function configure_native()
-    native.configure(mod:get("pishock_username") or "", mod:get("pishock_apikey") or "")
+    service = mod:get("service") or "off"
+    if service == "pishock" then
+        openshock.reset()
+        native.configure(mod:get("pishock_username") or "", mod:get("pishock_apikey") or "")
+    elseif service == "openshock" then
+        native.configure("", "")
+        openshock.configure(mod:get("openshock_token") or "", mod:get("openshock_server") or "")
+    else
+        native.configure("", "")
+        openshock.reset()
+    end
 end
 
 mod.on_setting_changed = function(setting_id)
+    if setting_id == "service" then
+        if mod:is_enabled() then
+            configure_native()
+        end
+        return
+    end
+
     local target_match = setting_id:match("^editor_(%w+)_target$")
     if target_match then
         local prefix = target_match
@@ -234,6 +231,7 @@ end
 
 mod.on_disabled = function()
     native.disconnect()
+    openshock.reset()
     table.clear(pishock_command_queue)
     last_health_frac = nil
     last_corr_frac = nil
@@ -247,7 +245,11 @@ function mod.update(dt)
         return
     end
 
-    native.update()
+    if service == "pishock" then
+        native.update()
+    elseif service == "openshock" then
+        openshock.update()
+    end
 
     local tm = mod:clock()
     
@@ -274,7 +276,7 @@ function mod.update(dt)
             is_currently_continuous_disabled = false
             has_printed_continuous_start = false
             if mod:get("chat_feedback") then
-                mod:echo("Done!")
+                mod:echo(mod:localize("msg_done"))
             end
         end
     end
@@ -416,24 +418,40 @@ function mod.update(dt)
         duration = 1
     end
     
-    local username = mod:get("pishock_username") or ""
-    local apikey = mod:get("pishock_apikey") or ""
+    if service == "pishock" then
+        local username = mod:get("pishock_username") or ""
+        local apikey = mod:get("pishock_apikey") or ""
 
-    if username == "" or apikey == "" then
-        mod:echo("PiShock credentials not set. Please use the following chat commands:")
-        mod:echo("/pishock_username <username>")
-        mod:echo("/pishock_apikey <apikey>")
-        return
-    end
+        if username == "" or apikey == "" then
+            mod:echo(mod:localize("msg_pishock_not_set"))
+            mod:echo("/ps_pishock_username <username>")
+            mod:echo("/ps_pishock_apikey <apikey>")
+            return
+        end
 
-    if not native.send(username, apikey, op, intensity, duration, mod:get("pishock_shocker") or "") then
+        if not native.send(username, apikey, op, intensity, duration, mod:get("pishock_shocker") or "") then
+            return
+        end
+    elseif service == "openshock" then
+        local token = mod:get("openshock_token") or ""
+
+        if token == "" then
+            mod:echo(mod:localize("msg_openshock_not_set"))
+            mod:echo("/ps_openshock_token <token>")
+            return
+        end
+
+        if not openshock.send(token, mod:get("openshock_server") or "", op, intensity, duration, mod:get("pishock_shocker") or "") then
+            return
+        end
+    else
         return
     end
 
     last_request_time = tm
 
     if mod:get("chat_feedback") then
-        local trigger_name = TRIGGER_NAMES[hook_id] or hook_id
+        local trigger_name = mod:localize("target_" .. hook_id)
         
         local is_continuous = continuous_disablers[hook_id] and mod:get("pulse_while_disabled")
         
@@ -441,20 +459,20 @@ function mod.update(dt)
             if not has_printed_continuous_start then
                 has_printed_continuous_start = true
                 if op == "0" then
-                    mod:echo("SHOCKING... (" .. trigger_name .. ")")
+                    mod:echo(mod:localize("msg_shocking", trigger_name))
                 elseif op == "1" then
-                    mod:echo("VIBRATING... (" .. trigger_name .. ")")
+                    mod:echo(mod:localize("msg_vibrating", trigger_name))
                 elseif op == "2" then
-                    mod:echo("BEEPING... (" .. trigger_name .. ")")
+                    mod:echo(mod:localize("msg_beeping", trigger_name))
                 end
             end
         else
             if op == "0" then
-                mod:echo("SHOCK! " .. tostring(duration) .. "s Intensity: " .. tostring(intensity) .. " (" .. trigger_name .. ")")
+                mod:echo(mod:localize("msg_shock", tostring(duration), tostring(intensity), trigger_name))
             elseif op == "1" then
-                mod:echo("VIBRATE! " .. tostring(duration) .. "s Intensity: " .. tostring(intensity) .. " (" .. trigger_name .. ")")
+                mod:echo(mod:localize("msg_vibrate", tostring(duration), tostring(intensity), trigger_name))
             elseif op == "2" then
-                mod:echo("BEEP! (" .. trigger_name .. ")")
+                mod:echo(mod:localize("msg_beep", trigger_name))
             end
         end
     end
@@ -577,6 +595,17 @@ mod:hook_safe(CLASS.MinigameBase, "play_sound", function(self, alias)
     end
 end)
 
+local MINIGAME_FAIL_EVENTS = {
+    ["wwise/events/player/play_device_auspex_scanner_minigame_fail"] = true,
+    ["wwise/events/player/play_device_auspex_bio_minigame_fail"] = true,
+}
+
+mod:hook_safe(CLASS.PlayerUnitFxExtension, "rpc_play_player_sound", function(self, channel_id, game_object_id, event_id)
+    if MINIGAME_FAIL_EVENTS[NetworkLookup.player_character_sounds[event_id]] and is_local_player(self._unit) then
+        send_pishock_command("on_minigame_fail")
+    end
+end)
+
 mod:hook_safe(CLASS.DialogueSystem, "_play_dialogue_event_implementation", function(self, go_id, is_level_unit, level_name_hash, dialogue_id, ...)
     local ok, is_cheer = pcall(function()
         return NetworkLookup.dialogue_names[dialogue_id] == "com_wheel_vo_for_the_emperor"
@@ -596,61 +625,187 @@ end)
 
 
 
-mod:command("pishock_username", "Set PiShock Username", function(...)
+local function mask(secret)
+    if secret == "" then
+        return mod:localize("msg_not_set")
+    end
+    if string.len(secret) > 4 then
+        return string.sub(secret, 1, 4) .. string.rep("*", string.len(secret) - 4)
+    end
+    return string.rep("*", string.len(secret))
+end
+
+mod:command("ps_pishock_username", mod:localize("cmd_pishock_username"), function(...)
     local args = {...}
     if #args > 0 then
         local username = table.concat(args, " ")
         mod:set("pishock_username", username)
-        mod:echo("PiShock Username set to: " .. username)
-        configure_native()
+        mod:echo(mod:localize("msg_username_set", username))
+        if service == "pishock" then
+            configure_native()
+        else
+            mod:echo(mod:localize("msg_pick_pishock"))
+        end
     else
-        mod:echo("Usage: /pishock_username <username>")
+        mod:echo(mod:localize("msg_usage", "/ps_pishock_username <username>"))
     end
 end)
 
-mod:command("pishock_apikey", "Set PiShock API Key", function(...)
+mod:command("ps_pishock_apikey", mod:localize("cmd_pishock_apikey"), function(...)
     local args = {...}
     if #args > 0 then
         local apikey = table.concat(args, " ")
         mod:set("pishock_apikey", apikey)
-        mod:echo("PiShock API Key set to: " .. apikey)
-        configure_native()
+        mod:echo(mod:localize("msg_apikey_set", mask(apikey)))
+        if service == "pishock" then
+            configure_native()
+        else
+            mod:echo(mod:localize("msg_pick_pishock"))
+        end
     else
-        mod:echo("Usage: /pishock_apikey <apikey>")
+        mod:echo(mod:localize("msg_usage", "/ps_pishock_apikey <apikey>"))
     end
 end)
 
-mod:command("pishock_shocker", "Set targeted PiShock Shocker names or IDs (comma separated)", function(...)
+mod:command("ps_openshock_token", mod:localize("cmd_openshock_token"), function(...)
+    local args = {...}
+    if #args > 0 then
+        local token = table.concat(args, " ")
+        mod:set("openshock_token", token)
+        mod:echo(mod:localize("msg_token_set", mask(token)))
+        if service == "openshock" then
+            configure_native()
+        else
+            mod:echo(mod:localize("msg_pick_openshock"))
+        end
+    else
+        mod:echo(mod:localize("msg_usage", "/ps_openshock_token <token>"))
+    end
+end)
+
+mod:command("ps_openshock_server", mod:localize("cmd_openshock_server"), function(...)
+    local server = string.gsub(table.concat({...}, " "), "/+$", "")
+    if server == "" then
+        mod:set("openshock_server", "")
+        mod:echo(mod:localize("msg_server_reset"))
+    elseif string.find(server, "^https?://[^/%s]+") then
+        mod:set("openshock_server", server)
+        mod:echo(mod:localize("msg_server_set", server))
+    else
+        mod:echo(mod:localize("msg_usage", "/ps_openshock_server <https://api.your-server.com>"))
+        return
+    end
+    if service == "openshock" then
+        configure_native()
+    end
+end)
+
+mod:command("ps_target", mod:localize("cmd_target"), function(...)
     local args = {...}
     if #args > 0 then
         local shockers = table.concat(args, " ")
         mod:set("pishock_shocker", shockers)
-        mod:echo("PiShock Shocker(s) set to: " .. shockers)
+        mod:echo(mod:localize("msg_target_set", shockers))
     else
         mod:set("pishock_shocker", "")
-        mod:echo("Cleared targeted shockers. All active shockers will be triggered.")
+        mod:echo(mod:localize("msg_target_cleared"))
     end
 end)
 
-mod:command("pishock_info", "Show PiShock Account Info", function()
+mod:command("ps_test", mod:localize("cmd_test"), function(op_name, intensity, duration)
+    local ops = { shock = "0", vibrate = "1", beep = "2" }
+    op_name = string.lower(op_name or "vibrate")
+    local op = ops[op_name]
+    intensity = math.clamp(math.floor(tonumber(intensity) or 10), 1, 100)
+    duration = math.clamp(math.floor(tonumber(duration) or 1), 1, 15)
+    if not op then
+        mod:echo(mod:localize("msg_usage", "/ps_test [shock|vibrate|beep] [intensity] [seconds]"))
+        return
+    end
+
+    local shocker_names = mod:get("pishock_shocker") or ""
+    local sent, reason = false, nil
+    if service == "pishock" then
+        local username = mod:get("pishock_username") or ""
+        local apikey = mod:get("pishock_apikey") or ""
+        if username == "" or apikey == "" then
+            mod:echo(mod:localize("msg_test_pishock_not_set"))
+            return
+        end
+        sent, reason = native.send(username, apikey, op, intensity, duration, shocker_names, true)
+    elseif service == "openshock" then
+        local token = mod:get("openshock_token") or ""
+        if token == "" then
+            mod:echo(mod:localize("msg_test_openshock_not_set"))
+            return
+        end
+        sent, reason = openshock.send(token, mod:get("openshock_server") or "", op, intensity, duration, shocker_names, true)
+    else
+        mod:echo(mod:localize("msg_service_off"))
+        return
+    end
+
+    if sent then
+        mod:echo(mod:localize("msg_test_sent", op_name, tostring(duration), tostring(intensity)))
+    elseif reason == "connecting" then
+        mod:echo(mod:localize("msg_test_connecting"))
+    else
+        mod:echo(mod:localize("msg_test_not_sent"))
+    end
+end)
+
+mod:command("ps_refresh", mod:localize("cmd_refresh"), function()
+    if service ~= "pishock" and service ~= "openshock" then
+        mod:echo(mod:localize("msg_service_off"))
+        return
+    end
+    configure_native()
+    local started = service == "pishock" and native.refresh() or service == "openshock" and openshock.refresh()
+    if started then
+        mod:echo(mod:localize("msg_refreshing"))
+    else
+        mod:echo(mod:localize("msg_refresh_no_login"))
+    end
+end)
+
+mod:command("ps_info", mod:localize("cmd_info"), function(action)
+    if action then
+        if string.lower(action) ~= "clear" then
+            mod:echo(mod:localize("msg_usage", "/ps_info [clear]"))
+            return
+        end
+        mod:set("pishock_username", "")
+        mod:set("pishock_apikey", "")
+        mod:set("openshock_token", "")
+        mod:set("openshock_server", "")
+        mod:set("pishock_shocker", "")
+        configure_native()
+        mod:echo(mod:localize("msg_info_cleared"))
+        return
+    end
+
     local username = mod:get("pishock_username") or ""
     local apikey = mod:get("pishock_apikey") or ""
     local shocker_names = mod:get("pishock_shocker") or ""
 
-    local display_username = username ~= "" and username or "[Not Set]"
-    local display_shockers = shocker_names ~= "" and shocker_names or "[All Devices]"
+    local display_username = username ~= "" and username or mod:localize("msg_not_set")
+    local display_shockers = shocker_names ~= "" and shocker_names or mod:localize("msg_all_devices")
     
-    local display_apikey = "[Not Set]"
-    if apikey ~= "" then
-        if string.len(apikey) > 4 then
-            display_apikey = string.sub(apikey, 1, 4) .. string.rep("*", string.len(apikey) - 4)
-        else
-            display_apikey = string.rep("*", string.len(apikey))
-        end
-    end
+    local service_names = { pishock = "PiShock", openshock = "OpenShock" }
 
-    mod:echo("=== PiShock Account Info ===")
-    mod:echo("Username: " .. display_username)
-    mod:echo("API Key: " .. display_apikey)
-    mod:echo("Target Shockers: " .. display_shockers)
+    local server = mod:get("openshock_server") or ""
+
+    mod:echo(mod:localize("msg_info_header"))
+    mod:echo(mod:localize("msg_info_service", service_names[service] or mod:localize("service_off")))
+    mod:echo(mod:localize("msg_info_target", display_shockers))
+    if service ~= "openshock" then
+        mod:echo("--- PiShock ---")
+        mod:echo(mod:localize("msg_info_username", display_username))
+        mod:echo(mod:localize("msg_info_apikey", mask(apikey)))
+    end
+    if service ~= "pishock" then
+        mod:echo("--- OpenShock ---")
+        mod:echo(mod:localize("msg_info_token", mask(mod:get("openshock_token") or "")))
+        mod:echo(mod:localize("msg_info_server", server ~= "" and server or mod:localize("msg_official")))
+    end
 end)
