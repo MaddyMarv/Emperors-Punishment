@@ -10,7 +10,7 @@ Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations
 
 [b]PiShock:[/b] type /ep_pishock_username <username> and /ep_pishock_apikey <apikey> in chat. Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
 
-[b]OpenShock:[/b] type /ep_openshock_token <token> in chat. Create the token on [url=https://openshock.app]openshock.app[/url] under API Tokens, with the shockers.use permission. The mod uses your own shockers and any shared with you, within the limits the owner set.
+[b]OpenShock:[/b] type /ep_openshock_token <token> in chat. Create the token on [url=https://openshock.app]openshock.app[/url] under API Tokens, and tick [b]Use[/b] under [b]Shockers[/b] (the shockers.use permission). The mod uses your own shockers and any shared with you, within the limits the owner set.
 
 Self-hosting? Run /ep_openshock_server <address> with your API address (for example https://api.example.com). Run it with nothing after it to go back to the official server.
 

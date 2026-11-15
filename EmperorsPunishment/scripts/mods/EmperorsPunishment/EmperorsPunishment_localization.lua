@@ -17,12 +17,6 @@ return {
     tab_enemies = {
         en = "Enemies",
     },
-    pishock_username = {
-        en = "PiShock Username",
-    },
-    pishock_apikey = {
-        en = "PiShock API Key",
-    },
     op_disabled = {
         en = "Disabled",
     },
