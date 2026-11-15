@@ -3,6 +3,8 @@
 
 Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations, or beeps on specific game events. Each trigger has its own operation, intensity and duration, with optional randomization, chat feedback and a cooldown.
 
+**Version 3.0 and newer no longer need a separate server file running. The mod connects to PiShock or OpenShock on its own.**
+
 **Setup:**
 1. Install the mod like any other Darktide mod.
 2. In the mod options, set **Service** to PiShock or OpenShock. It is Off by default, and nothing is sent while it is Off.
