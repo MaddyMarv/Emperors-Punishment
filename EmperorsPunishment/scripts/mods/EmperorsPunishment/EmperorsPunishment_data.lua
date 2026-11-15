@@ -1,4 +1,4 @@
-local mod = get_mod("PiShock")
+local mod = get_mod("EmperorsPunishment")
 
 local hook_categories = {
     {

@@ -153,10 +153,10 @@ return {
         en = "Cleared targeted shockers. All active shockers will be triggered.",
     },
     msg_test_pishock_not_set = {
-        en = "PiShock credentials not set. Use /ps_pishock_username and /ps_pishock_apikey first.",
+        en = "PiShock credentials not set. Use /ep_pishock_username and /ep_pishock_apikey first.",
     },
     msg_test_openshock_not_set = {
-        en = "OpenShock API token not set. Use /ps_openshock_token first.",
+        en = "OpenShock API token not set. Use /ep_openshock_token first.",
     },
     msg_service_off = {
         en = "Service is Off. Pick PiShock or OpenShock in the mod options first.",
@@ -222,19 +222,19 @@ return {
         en = "Set targeted shocker names or IDs for PiShock or OpenShock (comma separated)",
     },
     cmd_test = {
-        en = "Send a test to PiShock or OpenShock: /ps_test [shock|vibrate|beep] [intensity] [seconds]",
+        en = "Send a test to PiShock or OpenShock: /ep_test [shock|vibrate|beep] [intensity] [seconds]",
     },
     cmd_refresh = {
         en = "Re-read your shocker list from PiShock or OpenShock",
     },
     cmd_info = {
-        en = "Show PiShock / OpenShock account info. Add clear to erase all saved login details and targets: /ps_info clear",
+        en = "Show PiShock / OpenShock account info. Add clear to erase all saved login details and targets: /ep_info clear",
     },
     msg_key_hint = {
         en = "Keys made before 15 October 2024 no longer work. Generate a new one if yours is older.",
     },
     msg_dll_load_failed = {
-        en = "Could not load ps_native.dll (%s)",
+        en = "Could not load ep_native.dll (%s)",
     },
     msg_network_error = {
         en = "network error %s",
@@ -243,13 +243,13 @@ return {
         en = "No active shockers found on this PiShock account. They may be paused or not shared with it.",
     },
     msg_no_target_match = {
-        en = "None of your active shockers match /ps_target (%s).",
+        en = "None of your active shockers match /ep_target (%s).",
     },
     msg_pishock_key_rejected = {
         en = "The API key was rejected.",
     },
     msg_check_pishock_apikey = {
-        en = "Check /ps_pishock_apikey.",
+        en = "Check /ep_pishock_apikey.",
     },
     msg_pishock_account_failed = {
         en = "Could not read your account (%s).",
@@ -276,13 +276,13 @@ return {
         en = "PiShock rejected the username or API key.",
     },
     msg_check_pishock_login = {
-        en = "Check /ps_pishock_username and /ps_pishock_apikey.",
+        en = "Check /ep_pishock_username and /ep_pishock_apikey.",
     },
     msg_openshock_token_rejected = {
         en = "OpenShock rejected the API token.",
     },
     msg_check_openshock_token = {
-        en = "Check /ps_openshock_token.",
+        en = "Check /ep_openshock_token.",
     },
     msg_openshock_unreachable = {
         en = "Could not reach the OpenShock server at %s (%s).",
@@ -294,7 +294,7 @@ return {
         en = "The server at %s did not answer like an OpenShock server.",
     },
     msg_check_openshock_server = {
-        en = "Check /ps_openshock_server.",
+        en = "Check /ep_openshock_server.",
     },
     msg_openshock_shared_failed = {
         en = "Could not read the OpenShock shockers shared with you (%s). Only your own will be used.",

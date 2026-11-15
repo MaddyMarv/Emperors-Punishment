@@ -7,21 +7,21 @@ Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations
 1. Install the mod like any other Darktide mod.
 2. In the mod options, set **Service** to PiShock or OpenShock. It is Off by default, and nothing is sent while it is Off.
 3. Enter your account details in game chat (see below).
-4. Optional: run `/ps_target <names>` to target specific shockers. Without it, all active shockers are triggered.
-5. Run `/ps_test` to check it works. It sends a short vibration.
+4. Optional: run `/ep_target <names>` to target specific shockers. Without it, all active shockers are triggered.
+5. Run `/ep_test` to check it works. It sends a short vibration.
 6. Pick what each trigger does in the mod options.
 
-**PiShock:** type `/ps_pishock_username <username>` and `/ps_pishock_apikey <apikey>` in chat. Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
+**PiShock:** type `/ep_pishock_username <username>` and `/ep_pishock_apikey <apikey>` in chat. Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
 
-**OpenShock:** type `/ps_openshock_token <token>` in chat. Create the token on [openshock.app](https://openshock.app) under API Tokens, with the `shockers.use` permission. The mod uses your own shockers and any shared with you, within the limits the owner set.
+**OpenShock:** type `/ep_openshock_token <token>` in chat. Create the token on [openshock.app](https://openshock.app) under API Tokens, with the `shockers.use` permission. The mod uses your own shockers and any shared with you, within the limits the owner set.
 
-Self-hosting? Run `/ps_openshock_server <address>` with your API address (for example `https://api.example.com`). Run it with nothing after it to go back to the official server.
+Self-hosting? Run `/ep_openshock_server <address>` with your API address (for example `https://api.example.com`). Run it with nothing after it to go back to the official server.
 
 **Building the DLL yourself (optional):**
-Players do not need to do this. If you would rather not trust the included DLL, you can build it from the source in `PiShock/native/`:
+Players do not need to do this. If you would rather not trust the included DLL, you can build it from the source in `EmperorsPunishment/native/`:
 1. Install [zig](https://ziglang.org/download/).
-2. Run `PiShock/native/build.sh` on Linux or macOS. On Windows, run this from the `PiShock/native` folder instead: `zig cc -target x86_64-windows-gnu -shared -O2 -s -o ../bin/ps_native.dll ps_native.c -lwinhttp`
-3. The new `ps_native.dll` replaces the one in `PiShock/bin/`.
+2. Run `EmperorsPunishment/native/build.sh` on Linux or macOS. On Windows, run this from the `EmperorsPunishment/native` folder instead: `zig cc -target x86_64-windows-gnu -shared -O2 -s -o ../bin/ep_native.dll ep_native.c -lwinhttp`
+3. The new `ep_native.dll` replaces the one in `EmperorsPunishment/bin/`.
 
 <details>
 <summary><b>Mod Settings / Commands</b></summary>
@@ -75,15 +75,15 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 - Randomize Intensity (min and max)
 
 **Commands:**
-- `/ps_pishock_username <username>` - Sets your PiShock account username.
-- `/ps_pishock_apikey <apikey>` - Sets your PiShock API key.
-- `/ps_openshock_token <token>` - Sets your OpenShock API token.
-- `/ps_openshock_server <address>` - Sets a self-hosted OpenShock API address. Leave blank to use the official server.
-- `/ps_target <shocker_names>` - Sets specific shockers to target (works for both services) (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
-- `/ps_test [shock|vibrate|beep] [intensity] [seconds]` - Sends a test to the active service. Defaults to vibrate at intensity 10 for 1 second.
-- `/ps_refresh` - Re-reads your shocker list. Use it after adding, pausing or sharing a shocker while the game is running.
-- `/ps_info` - Shows the active service and your configured account information (with masked keys for safety).
-- `/ps_info clear` - Clears your saved username, API key, OpenShock token, server address and targeted shockers. Trigger settings are kept.
+- `/ep_pishock_username <username>` - Sets your PiShock account username.
+- `/ep_pishock_apikey <apikey>` - Sets your PiShock API key.
+- `/ep_openshock_token <token>` - Sets your OpenShock API token.
+- `/ep_openshock_server <address>` - Sets a self-hosted OpenShock API address. Leave blank to use the official server.
+- `/ep_target <shocker_names>` - Sets specific shockers to target (works for both services) (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
+- `/ep_test [shock|vibrate|beep] [intensity] [seconds]` - Sends a test to the active service. Defaults to vibrate at intensity 10 for 1 second.
+- `/ep_refresh` - Re-reads your shocker list. Use it after adding, pausing or sharing a shocker while the game is running.
+- `/ep_info` - Shows the active service and your configured account information (with masked keys for safety).
+- `/ep_info clear` - Clears your saved username, API key, OpenShock token, server address and targeted shockers. Trigger settings are kept.
 </details>
 
 Commissioned by Angels

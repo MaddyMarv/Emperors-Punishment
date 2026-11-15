@@ -1,4 +1,4 @@
-local mod = get_mod("PiShock")
+local mod = get_mod("EmperorsPunishment")
 local native = mod.native
 
 local openshock = {}
@@ -100,7 +100,7 @@ local function on_devices(dll, status, body)
     add_shockers(shockers, reply.data)
     state.found = shockers
     state.step = "shared"
-    dll.PS_HttpGet(state.server .. "/1/shockers/shared", headers())
+    dll.EP_HttpGet(state.server .. "/1/shockers/shared", headers())
 end
 
 local function announce()
@@ -268,7 +268,7 @@ function openshock.send(token, server, op, intensity, duration, shocker_names, i
     end
 
     local body = cjson.encode({ shocks = shocks, customName = "Darktide" })
-    if native.load().PS_HttpPost(state.server .. "/2/shockers/control", headers(), body) == 0 then
+    if native.load().EP_HttpPost(state.server .. "/2/shockers/control", headers(), body) == 0 then
         return false
     end
     state.posting = true
@@ -286,14 +286,14 @@ function openshock.update()
         return
     end
 
-    local http_state = dll.PS_HttpState()
+    local http_state = dll.EP_HttpState()
     if step == "restart" then
         state.posting = false
         if http_state == HTTP_DONE then
             native.read_result(dll)
         elseif http_state == HTTP_IDLE then
             state.step = "devices"
-            dll.PS_HttpGet(state.server .. "/1/shockers/own", headers())
+            dll.EP_HttpGet(state.server .. "/1/shockers/own", headers())
         end
     elseif http_state == HTTP_DONE then
         local status, body = native.read_result(dll)

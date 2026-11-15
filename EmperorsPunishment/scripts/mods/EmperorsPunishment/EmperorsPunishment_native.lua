@@ -1,9 +1,9 @@
-local mod = get_mod("PiShock")
+local mod = get_mod("EmperorsPunishment")
 local ffi = Mods.lua.ffi
 
 local native = {}
 
-local DLL_PATH = "../mods/PiShock/bin/ps_native.dll"
+local DLL_PATH = "../mods/EmperorsPunishment/bin/ep_native.dll"
 local RETRY_DELAY = 10
 local WS_CONNECTED = 2
 local KEY_HINT = mod:localize("msg_key_hint")
@@ -15,26 +15,26 @@ local OP_MODES = { ["0"] = "s", ["1"] = "v", ["2"] = "b" }
 
 local state = mod:persistent_table("native")
 
-if not pcall(ffi.typeof, "PiShock_CDEF") then
+if not pcall(ffi.typeof, "EmperorsPunishment_CDEF") then
     ffi.cdef([[
-        typedef struct { int unused; } PiShock_CDEF;
+        typedef struct { int unused; } EmperorsPunishment_CDEF;
 
-        int  PS_Connect(const char* url);
-        void PS_Disconnect(void);
-        int  PS_Status(void);
-        int  PS_Send(const char* text);
-        int  PS_LastError(char* buffer, int buffer_size);
-        int  PS_HttpGet(const char* url, const char* headers);
-        int  PS_HttpState(void);
-        int  PS_HttpResult(char* buffer, int buffer_size, int* status);
+        int  EP_Connect(const char* url);
+        void EP_Disconnect(void);
+        int  EP_Status(void);
+        int  EP_Send(const char* text);
+        int  EP_LastError(char* buffer, int buffer_size);
+        int  EP_HttpGet(const char* url, const char* headers);
+        int  EP_HttpState(void);
+        int  EP_HttpResult(char* buffer, int buffer_size, int* status);
     ]])
 end
 
-if not pcall(ffi.typeof, "PiShock_CDEF_POST") then
+if not pcall(ffi.typeof, "EmperorsPunishment_CDEF_POST") then
     ffi.cdef([[
-        typedef struct { int unused; } PiShock_CDEF_POST;
+        typedef struct { int unused; } EmperorsPunishment_CDEF_POST;
 
-        int  PS_HttpPost(const char* url, const char* headers, const char* body);
+        int  EP_HttpPost(const char* url, const char* headers, const char* body);
     ]])
 end
 
@@ -85,15 +85,15 @@ end
 
 local function begin_discovery(dll)
     state.step = "account"
-    dll.PS_HttpGet("https://api.pishock.com/Account", "X-PiShock-Api-Key: " .. state.apikey .. "\r\n")
+    dll.EP_HttpGet("https://api.pishock.com/Account", "X-PiShock-Api-Key: " .. state.apikey .. "\r\n")
 end
 
 local function read_result(dll)
-    local length = dll.PS_HttpResult(buffer, buffer_size, status_out)
+    local length = dll.EP_HttpResult(buffer, buffer_size, status_out)
     if length < 0 then
         buffer_size = -length
         buffer = ffi.new("char[?]", buffer_size)
-        length = dll.PS_HttpResult(buffer, buffer_size, status_out)
+        length = dll.EP_HttpResult(buffer, buffer_size, status_out)
     end
     return status_out[0], ffi.string(buffer, length)
 end
@@ -146,7 +146,7 @@ local function publish(dll, command)
         return false
     end
 
-    return dll.PS_Send(cjson.encode({ Operation = "PUBLISH", PublishCommands = commands })) ~= 0
+    return dll.EP_Send(cjson.encode({ Operation = "PUBLISH", PublishCommands = commands })) ~= 0
 end
 
 local function on_account(dll, status, body)
@@ -168,7 +168,7 @@ local function on_account(dll, status, body)
 
     state.user_id = user_id
     state.step = "devices"
-    dll.PS_HttpGet("https://ps.pishock.com/PiShock/GetUserDevices?UserId=" .. url_encode(tostring(user_id))
+    dll.EP_HttpGet("https://ps.pishock.com/PiShock/GetUserDevices?UserId=" .. url_encode(tostring(user_id))
         .. "&Token=" .. url_encode(state.apikey) .. "&api=true", "")
 end
 
@@ -261,13 +261,13 @@ function native.configure(username, apikey)
         state.step = "restart"
     end
 
-    dll.PS_Connect(state.ws_url)
+    dll.EP_Connect(state.ws_url)
     return true
 end
 
 function native.disconnect()
     if state.dll then
-        state.dll.PS_Disconnect()
+        state.dll.EP_Disconnect()
     end
 end
 
@@ -276,7 +276,7 @@ function native.send(username, apikey, op, intensity, duration, shocker_names, i
         return false
     end
 
-    if not state.clients or state.dll.PS_Status() ~= WS_CONNECTED then
+    if not state.clients or state.dll.EP_Status() ~= WS_CONNECTED then
         local t = mod:clock()
         if state.step and not is_test and (t >= last_skip_t + ERROR_REPEAT_DELAY or t < last_skip_t) then
             last_skip_t = t
@@ -301,7 +301,7 @@ function native.update()
 
     local step = state.step
     if step then
-        local http_state = dll.PS_HttpState()
+        local http_state = dll.EP_HttpState()
         if step == "restart" then
             if http_state == HTTP_DONE then
                 read_result(dll)
@@ -321,7 +321,7 @@ function native.update()
     local t = mod:clock()
     if t >= next_error_poll or t < next_error_poll - ERROR_POLL_INTERVAL then
         next_error_poll = t + ERROR_POLL_INTERVAL
-        local length = dll.PS_LastError(buffer, buffer_size)
+        local length = dll.EP_LastError(buffer, buffer_size)
         if length > 0 then
             local message = ffi.string(buffer, length)
             if message ~= last_logged then

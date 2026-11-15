@@ -1,4 +1,4 @@
-local mod = get_mod("PiShock")
+local mod = get_mod("EmperorsPunishment")
 local ScriptUnit = mod:original_require("scripts/foundation/utilities/script_unit")
 
 function mod:clock()
@@ -125,10 +125,10 @@ local last_request_time = 0
 
 local send_pishock_command
 
-local native = mod:io_dofile("PiShock/scripts/mods/PiShock/PiShock_native")
+local native = mod:io_dofile("EmperorsPunishment/scripts/mods/EmperorsPunishment/EmperorsPunishment_native")
 
 mod.native = native
-local openshock = mod:io_dofile("PiShock/scripts/mods/PiShock/PiShock_openshock")
+local openshock = mod:io_dofile("EmperorsPunishment/scripts/mods/EmperorsPunishment/EmperorsPunishment_openshock")
 
 local service = "off"
 
@@ -424,12 +424,12 @@ function mod.update(dt)
 
         if username == "" or apikey == "" then
             mod:echo(mod:localize("msg_pishock_not_set"))
-            mod:echo("/ps_pishock_username <username>")
-            mod:echo("/ps_pishock_apikey <apikey>")
+            mod:echo("/ep_pishock_username <username>")
+            mod:echo("/ep_pishock_apikey <apikey>")
             return
         end
 
-        if not native.send(username, apikey, op, intensity, duration, mod:get("pishock_shocker") or "") then
+        if not native.send(username, apikey, op, intensity, duration, mod:get("target_shockers") or "") then
             return
         end
     elseif service == "openshock" then
@@ -437,11 +437,11 @@ function mod.update(dt)
 
         if token == "" then
             mod:echo(mod:localize("msg_openshock_not_set"))
-            mod:echo("/ps_openshock_token <token>")
+            mod:echo("/ep_openshock_token <token>")
             return
         end
 
-        if not openshock.send(token, mod:get("openshock_server") or "", op, intensity, duration, mod:get("pishock_shocker") or "") then
+        if not openshock.send(token, mod:get("openshock_server") or "", op, intensity, duration, mod:get("target_shockers") or "") then
             return
         end
     else
@@ -635,7 +635,7 @@ local function mask(secret)
     return string.rep("*", string.len(secret))
 end
 
-mod:command("ps_pishock_username", mod:localize("cmd_pishock_username"), function(...)
+mod:command("ep_pishock_username", mod:localize("cmd_pishock_username"), function(...)
     local args = {...}
     if #args > 0 then
         local username = table.concat(args, " ")
@@ -647,11 +647,11 @@ mod:command("ps_pishock_username", mod:localize("cmd_pishock_username"), functio
             mod:echo(mod:localize("msg_pick_pishock"))
         end
     else
-        mod:echo(mod:localize("msg_usage", "/ps_pishock_username <username>"))
+        mod:echo(mod:localize("msg_usage", "/ep_pishock_username <username>"))
     end
 end)
 
-mod:command("ps_pishock_apikey", mod:localize("cmd_pishock_apikey"), function(...)
+mod:command("ep_pishock_apikey", mod:localize("cmd_pishock_apikey"), function(...)
     local args = {...}
     if #args > 0 then
         local apikey = table.concat(args, " ")
@@ -663,11 +663,11 @@ mod:command("ps_pishock_apikey", mod:localize("cmd_pishock_apikey"), function(..
             mod:echo(mod:localize("msg_pick_pishock"))
         end
     else
-        mod:echo(mod:localize("msg_usage", "/ps_pishock_apikey <apikey>"))
+        mod:echo(mod:localize("msg_usage", "/ep_pishock_apikey <apikey>"))
     end
 end)
 
-mod:command("ps_openshock_token", mod:localize("cmd_openshock_token"), function(...)
+mod:command("ep_openshock_token", mod:localize("cmd_openshock_token"), function(...)
     local args = {...}
     if #args > 0 then
         local token = table.concat(args, " ")
@@ -679,11 +679,11 @@ mod:command("ps_openshock_token", mod:localize("cmd_openshock_token"), function(
             mod:echo(mod:localize("msg_pick_openshock"))
         end
     else
-        mod:echo(mod:localize("msg_usage", "/ps_openshock_token <token>"))
+        mod:echo(mod:localize("msg_usage", "/ep_openshock_token <token>"))
     end
 end)
 
-mod:command("ps_openshock_server", mod:localize("cmd_openshock_server"), function(...)
+mod:command("ep_openshock_server", mod:localize("cmd_openshock_server"), function(...)
     local server = string.gsub(table.concat({...}, " "), "/+$", "")
     if server == "" then
         mod:set("openshock_server", "")
@@ -692,7 +692,7 @@ mod:command("ps_openshock_server", mod:localize("cmd_openshock_server"), functio
         mod:set("openshock_server", server)
         mod:echo(mod:localize("msg_server_set", server))
     else
-        mod:echo(mod:localize("msg_usage", "/ps_openshock_server <https://api.your-server.com>"))
+        mod:echo(mod:localize("msg_usage", "/ep_openshock_server <https://api.your-server.com>"))
         return
     end
     if service == "openshock" then
@@ -700,30 +700,30 @@ mod:command("ps_openshock_server", mod:localize("cmd_openshock_server"), functio
     end
 end)
 
-mod:command("ps_target", mod:localize("cmd_target"), function(...)
+mod:command("ep_target", mod:localize("cmd_target"), function(...)
     local args = {...}
     if #args > 0 then
         local shockers = table.concat(args, " ")
-        mod:set("pishock_shocker", shockers)
+        mod:set("target_shockers", shockers)
         mod:echo(mod:localize("msg_target_set", shockers))
     else
-        mod:set("pishock_shocker", "")
+        mod:set("target_shockers", "")
         mod:echo(mod:localize("msg_target_cleared"))
     end
 end)
 
-mod:command("ps_test", mod:localize("cmd_test"), function(op_name, intensity, duration)
+mod:command("ep_test", mod:localize("cmd_test"), function(op_name, intensity, duration)
     local ops = { shock = "0", vibrate = "1", beep = "2" }
     op_name = string.lower(op_name or "vibrate")
     local op = ops[op_name]
     intensity = math.clamp(math.floor(tonumber(intensity) or 10), 1, 100)
     duration = math.clamp(math.floor(tonumber(duration) or 1), 1, 15)
     if not op then
-        mod:echo(mod:localize("msg_usage", "/ps_test [shock|vibrate|beep] [intensity] [seconds]"))
+        mod:echo(mod:localize("msg_usage", "/ep_test [shock|vibrate|beep] [intensity] [seconds]"))
         return
     end
 
-    local shocker_names = mod:get("pishock_shocker") or ""
+    local shocker_names = mod:get("target_shockers") or ""
     local sent, reason = false, nil
     if service == "pishock" then
         local username = mod:get("pishock_username") or ""
@@ -754,7 +754,7 @@ mod:command("ps_test", mod:localize("cmd_test"), function(op_name, intensity, du
     end
 end)
 
-mod:command("ps_refresh", mod:localize("cmd_refresh"), function()
+mod:command("ep_refresh", mod:localize("cmd_refresh"), function()
     if service ~= "pishock" and service ~= "openshock" then
         mod:echo(mod:localize("msg_service_off"))
         return
@@ -768,17 +768,17 @@ mod:command("ps_refresh", mod:localize("cmd_refresh"), function()
     end
 end)
 
-mod:command("ps_info", mod:localize("cmd_info"), function(action)
+mod:command("ep_info", mod:localize("cmd_info"), function(action)
     if action then
         if string.lower(action) ~= "clear" then
-            mod:echo(mod:localize("msg_usage", "/ps_info [clear]"))
+            mod:echo(mod:localize("msg_usage", "/ep_info [clear]"))
             return
         end
         mod:set("pishock_username", "")
         mod:set("pishock_apikey", "")
         mod:set("openshock_token", "")
         mod:set("openshock_server", "")
-        mod:set("pishock_shocker", "")
+        mod:set("target_shockers", "")
         configure_native()
         mod:echo(mod:localize("msg_info_cleared"))
         return
@@ -786,7 +786,7 @@ mod:command("ps_info", mod:localize("cmd_info"), function(action)
 
     local username = mod:get("pishock_username") or ""
     local apikey = mod:get("pishock_apikey") or ""
-    local shocker_names = mod:get("pishock_shocker") or ""
+    local shocker_names = mod:get("target_shockers") or ""
 
     local display_username = username ~= "" and username or mod:localize("msg_not_set")
     local display_shockers = shocker_names ~= "" and shocker_names or mod:localize("msg_all_devices")

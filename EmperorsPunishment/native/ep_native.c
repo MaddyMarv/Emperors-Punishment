@@ -76,7 +76,7 @@ static HINTERNET open_request(const char *url, const WCHAR *verb, HINTERNET *ses
     uc.dwUrlPathLength = (DWORD)-1;
 
     if (WinHttpCrackUrl(wurl, 0, 0, &uc)) {
-        *session = WinHttpOpen(L"PiShock-Darktide", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, NULL, NULL, 0);
+        *session = WinHttpOpen(L"EmperorsPunishment-Darktide", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, NULL, NULL, 0);
         if (*session) {
             WinHttpSetTimeouts(*session, 5000, 5000, 5000, recv_timeout);
             *connect = WinHttpConnect(*session, host, uc.nPort, 0);
@@ -310,7 +310,7 @@ static void set_target(const char *url) {
     SetEvent(wake_ws);
 }
 
-EXPORT int PS_Connect(const char *url) {
+EXPORT int EP_Connect(const char *url) {
     char *target;
     int same;
 
@@ -331,15 +331,15 @@ EXPORT int PS_Connect(const char *url) {
     return 1;
 }
 
-EXPORT void PS_Disconnect(void) {
+EXPORT void EP_Disconnect(void) {
     set_target(NULL);
 }
 
-EXPORT int PS_Status(void) {
+EXPORT int EP_Status(void) {
     return (int)ws_status;
 }
 
-EXPORT int PS_Send(const char *text) {
+EXPORT int EP_Send(const char *text) {
     int ok = 0;
 
     EnterCriticalSection(&lock);
@@ -355,7 +355,7 @@ EXPORT int PS_Send(const char *text) {
     return ok;
 }
 
-EXPORT int PS_LastError(char *buffer, int buffer_size) {
+EXPORT int EP_LastError(char *buffer, int buffer_size) {
     int n = 0;
 
     EnterCriticalSection(&lock);
@@ -388,15 +388,15 @@ static int http_start(const char *url, const char *headers, const char *post) {
     return ok;
 }
 
-EXPORT int PS_HttpGet(const char *url, const char *headers) {
+EXPORT int EP_HttpGet(const char *url, const char *headers) {
     return http_start(url, headers, NULL);
 }
 
-EXPORT int PS_HttpPost(const char *url, const char *headers, const char *body) {
+EXPORT int EP_HttpPost(const char *url, const char *headers, const char *body) {
     return http_start(url, headers, body ? body : "");
 }
 
-EXPORT int PS_HttpState(void) {
+EXPORT int EP_HttpState(void) {
     int state;
 
     EnterCriticalSection(&lock);
@@ -405,7 +405,7 @@ EXPORT int PS_HttpState(void) {
     return state;
 }
 
-EXPORT int PS_HttpResult(char *buffer, int buffer_size, int *status) {
+EXPORT int EP_HttpResult(char *buffer, int buffer_size, int *status) {
     int n = 0;
 
     EnterCriticalSection(&lock);
