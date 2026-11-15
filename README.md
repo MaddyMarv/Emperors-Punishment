@@ -3,7 +3,7 @@
 
 Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations, or beeps on specific game events. Each trigger has its own operation, intensity and duration, with optional randomization, chat feedback and a cooldown.
 
-**No companion server needed.** Since version 3.0 the mod talks to the service directly (PiShock, and OpenShock from 3.1) through a small DLL included in the mod folder (`bin/ps_native.dll`). You no longer need Python, `server.exe` or `start_server.bat`. The DLL's source is included in `native/ps_native.c`.
+**No companion server needed.** The mod talks to PiShock and OpenShock directly through a small included DLL, so there is no Python or `server.exe` to run. The DLL's source is in `native/ps_native.c`.
 
 **Setup:**
 1. Install the mod like any other Darktide mod.
