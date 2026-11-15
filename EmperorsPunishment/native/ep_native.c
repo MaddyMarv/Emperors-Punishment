@@ -137,27 +137,24 @@ static DWORD WINAPI http_thread(LPVOID param) {
 }
 
 static DWORD WINAPI ws_thread(LPVOID param) {
-    (void)param;
+    unsigned gen = (unsigned)(UINT_PTR)param;
+
     for (;;) {
         HINTERNET session, connect, request, handle = NULL;
         DWORD err = 0, http = 0, size = sizeof http;
         char *url = NULL;
         char buf[4096];
-        unsigned gen;
         int n = 0, mine, auth_failed = 0;
 
         EnterCriticalSection(&lock);
-        if (ws_url) url = _strdup(ws_url);
-        gen = ws_gen;
+        if (gen == ws_gen && ws_url) {
+            url = _strdup(ws_url);
+            ws_status = WS_CONNECTING;
+        }
         LeaveCriticalSection(&lock);
 
-        if (!url) {
-            if (ws_status != WS_FAILED) ws_status = WS_DISCONNECTED;
-            WaitForSingleObject(wake_ws, INFINITE);
-            continue;
-        }
+        if (!url) return 0;
 
-        ws_status = WS_CONNECTING;
         request = open_request(url, L"GET", &session, &connect, 90000);
         free(url);
         if (request &&
@@ -298,14 +295,20 @@ static void set_target(const char *url) {
     ws_handle = ws_connect = ws_session = NULL;
     while (q_count) free(pop_message());
     has_error = 0;
+    if (url) {
+        ws_status = WS_CONNECTING;
+        CloseHandle(CreateThread(NULL, 0, ws_thread, (LPVOID)(UINT_PTR)ws_gen, 0, NULL));
+    } else if (ws_status != WS_FAILED) {
+        ws_status = WS_DISCONNECTED;
+    }
     if (!started) {
         started = 1;
-        CloseHandle(CreateThread(NULL, 0, ws_thread, NULL, 0, NULL));
         CloseHandle(CreateThread(NULL, 0, send_thread, NULL, 0, NULL));
     }
     LeaveCriticalSection(&lock);
     LeaveCriticalSection(&send_lock);
 
+    if (handle) WinHttpWebSocketShutdown(handle, WINHTTP_WEB_SOCKET_SUCCESS_CLOSE_STATUS, NULL, 0);
     close_handles(handle, connect, session);
     SetEvent(wake_ws);
 }
