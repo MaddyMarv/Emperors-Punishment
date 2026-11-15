@@ -90,4 +90,4 @@ Commissioned by Angels
 
 **Credits:** The FFI and native DLL approach is based on [Emperor's Touch](https://www.nexusmods.com/warhammer40kdarktide/mods/1003) by [augentism](https://www.nexusmods.com/profile/augentism?gameId=4943).
 
-🔗 **Links:** [Source Code](https://github.com/MaddyMarv/Emperor-s-Punishment-Pishock-for-Darktide-) | [Nexus Mods Profile](https://www.nexusmods.com/profile/indicabunny) | [Support Me on Ko-fi](https://ko-fi.com/indicabunny)
+🔗 **Links:** [Source Code](https://github.com/MaddyMarv/Emperors-Punishment) | [Nexus Mods Profile](https://www.nexusmods.com/profile/indicabunny) | [Support Me on Ko-fi](https://ko-fi.com/indicabunny)

@@ -83,4 +83,4 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 The FFI and native DLL approach is based on [url=https://www.nexusmods.com/warhammer40kdarktide/mods/1003]Emperor's Touch[/url] by [url=https://www.nexusmods.com/profile/augentism?gameId=4943]augentism[/url].
 
 [b]Links:[/b]
-[url=https://github.com/MaddyMarv/Emperor-s-Punishment-Pishock-for-Darktide-]Source Code[/url] | [url=https://www.nexusmods.com/profile/indicabunny]Nexus Mods Profile[/url] | [url=https://ko-fi.com/indicabunny]Support Me on Ko-fi[/url]
+[url=https://github.com/MaddyMarv/Emperors-Punishment]Source Code[/url] | [url=https://www.nexusmods.com/profile/indicabunny]Nexus Mods Profile[/url] | [url=https://ko-fi.com/indicabunny]Support Me on Ko-fi[/url]
