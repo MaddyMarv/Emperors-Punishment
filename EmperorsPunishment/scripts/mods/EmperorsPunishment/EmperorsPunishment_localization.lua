@@ -470,4 +470,7 @@ return {
     msg_info_cleared = {
         en = "Cleared all saved login details, the OpenShock server and targeted shockers.",
     },
+    msg_old_mod_installed = {
+        en = "{#color(255,50,50)}[Emperor's Punishment] WARNING:{#reset()} The old PiShock mod is still installed and will double every trigger. Delete the PiShock folder from your mods folder!",
+    },
 }

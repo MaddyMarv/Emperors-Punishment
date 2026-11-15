@@ -183,6 +183,11 @@ mod.on_setting_changed = function(setting_id)
 end
 
 mod.on_all_mods_loaded = function()
+    local old_mod = get_mod("PiShock")
+    if old_mod and old_mod:is_enabled() then
+        mod:echo(mod:localize("msg_old_mod_installed"))
+    end
+
     mod.on_setting_changed("editor_vitals_target")
     mod.on_setting_changed("editor_mechanics_target")
     mod.on_setting_changed("editor_enemies_target")
