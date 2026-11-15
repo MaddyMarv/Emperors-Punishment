@@ -3,8 +3,6 @@
 
 Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations, or beeps on specific game events. Each trigger has its own operation, intensity and duration, with optional randomization, chat feedback and a cooldown.
 
-**No companion server needed.** The mod talks to PiShock and OpenShock directly through a small included DLL, so there is no Python or `server.exe` to run. The DLL's source is in `native/ps_native.c`.
-
 **Setup:**
 1. Install the mod like any other Darktide mod.
 2. In the mod options, set **Service** to PiShock or OpenShock. It is Off by default, and nothing is sent while it is Off.
@@ -13,9 +11,11 @@ Connects Darktide to a PiShock or OpenShock device to trigger shocks, vibrations
 5. Run `/ps_test` to check it works. It sends a short vibration.
 6. Pick what each trigger does in the mod options.
 
-**PiShock:** run `/ps_pishock_username <username>` and `/ps_pishock_apikey <apikey>`. Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
+**PiShock:** type /ps_pishock_username <username> and /ps_pishock_apikey <apikey> in chat. Your API key must have been generated after 15 October 2024. If the mod reports that the key was rejected, generate a new one on the PiShock website.
 
-**OpenShock:** run `/ps_openshock_token <token>`. Create the token on [openshock.app](https://openshock.app) under API Tokens, with the `shockers.use` permission. The mod uses your own shockers and any shared with you, within the limits the owner set. Self-hosting? Run `/ps_openshock_server <address>` with your API address (for example `https://api.example.com`). Run it with nothing after it to go back to the official server.
+**OpenShock:** type /ps_openshock_token <token> in chat. Create the token on [url=https://openshock.app]openshock.app[/url] under API Tokens, with the shockers.use permission. The mod uses your own shockers and any shared with you, within the limits the owner set.
+
+Self-hosting? Run /ps_openshock_server <address> with your API address (for example https://api.example.com). Run it with nothing after it to go back to the official server.
 
 **Building the DLL yourself (optional):**
 Players do not need to do this. If you would rather not trust the included DLL, you can build it from the source in `PiShock/native/`:
