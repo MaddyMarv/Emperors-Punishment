@@ -144,10 +144,10 @@ local last_event_time = 0
 
 local send_pishock_command
 
-local native = mod:io_dofile("EmperorsPunishment/scripts/mods/EmperorsPunishment/EmperorsPunishment_native")
+local native = mod:io_dofile("EmperorsPunishment/scripts/mods/EmperorsPunishment/services/pishock")
 
 mod.native = native
-local openshock = mod:io_dofile("EmperorsPunishment/scripts/mods/EmperorsPunishment/EmperorsPunishment_openshock")
+local openshock = mod:io_dofile("EmperorsPunishment/scripts/mods/EmperorsPunishment/services/openshock")
 
 local service = "off"
 
