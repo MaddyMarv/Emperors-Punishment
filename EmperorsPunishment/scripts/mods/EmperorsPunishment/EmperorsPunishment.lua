@@ -141,7 +141,6 @@ end
 
 local pishock_command_queue = {}
 local last_event_time = 0
-local last_request_time = 0
 
 local send_pishock_command
 
@@ -515,8 +514,6 @@ function mod.update(dt)
 		return
 	end
 
-	last_request_time = tm
-
 	if mod:get("chat_feedback") then
 		local trigger_name = mod:localize("target_" .. hook_id)
 
@@ -839,7 +836,7 @@ mod:command("ep_test", mod:localize("cmd_test"), function(op_name, intensity, du
 	end
 
 	local shocker_names = mod:get("target_shockers") or ""
-	local sent, reason = false, nil
+	local sent, reason
 	if service == "pishock" then
 		local username = mod:get("pishock_username") or ""
 		local apikey = mod:get("pishock_apikey") or ""
