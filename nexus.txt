@@ -66,15 +66,15 @@ Players do not need to do this. If you would rather not trust the included DLL, 
 - Operation Type (Disabled, Shock, Vibrate, Beep, Random)
 - Duration (Seconds)
 - Intensity
-- Randomize Duration (min and max)
-- Randomize Intensity (min and max)
+- Randomize Duration (Random Min, Random Max)
+- Randomize Intensity (Random Min, Random Max)
 
 [b]Commands:[/b]
 - /ep_pishock_username <username> - Sets your PiShock account username.
 - /ep_pishock_apikey <apikey> - Sets your PiShock API key.
 - /ep_openshock_token <token> - Sets your OpenShock API token.
 - /ep_openshock_server <address> - Sets a self-hosted OpenShock API address. Leave blank to use the official server.
-- /ep_target <shocker_names> - Sets specific shockers to target (works for both services) (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
+- /ep_target <shocker_names> - Sets specific shockers to target by name or ID (works for both services) (comma-separated). Leave blank to clear targeted shockers and trigger all active ones.
 - /ep_test [shock|vibrate|beep] [intensity] [seconds] - Sends a test to the active service. Defaults to vibrate at intensity 10 for 1 second.
 - /ep_refresh - Re-reads your shocker list. Use it after adding, pausing or sharing a shocker while the game is running.
 - /ep_info - Shows the active service and your configured account information (with masked keys for safety).
